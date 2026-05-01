@@ -1,0 +1,103 @@
+{
+  "2026-W18": {
+    "⏰ Wake up at 5:00 AM": {
+      "Mon": false,
+      "Tue": false,
+      "Wed": false,
+      "Thu": false,
+      "Fri": false,
+      "Sat": false,
+      "Sun": false
+    },
+    "🪥 Fresh routine (brush + face wash) – 10 min": {
+      "Mon": false,
+      "Tue": false,
+      "Wed": false,
+      "Thu": false,
+      "Fri": false,
+      "Sat": false,
+      "Sun": false
+    },
+    "🏋️ Gym (15 min) + 🧘 Meditation (10 min) + 🙏 Surya Namaskar (5 min)": {
+      "Mon": false,
+      "Tue": false,
+      "Wed": false,
+      "Thu": false,
+      "Fri": false,
+      "Sat": false,
+      "Sun": false
+    },
+    "🚿 Cold water bath – 10 min": {
+      "Mon": false,
+      "Tue": false,
+      "Wed": false,
+      "Thu": false,
+      "Fri": false,
+      "Sat": false,
+      "Sun": false
+    },
+    "✅ Finish morning routine before 6:00 AM": {
+      "Mon": false,
+      "Tue": false,
+      "Wed": false,
+      "Thu": false,
+      "Fri": false,
+      "Sat": false,
+      "Sun": false
+    },
+    "💻 DSA practice (6:00 – 8:30 AM)": {
+      "Mon": false,
+      "Tue": false,
+      "Wed": false,
+      "Thu": false,
+      "Fri": false,
+      "Sat": false,
+      "Sun": false
+    },
+    "🏢 Office work (9:00 – 5:00)": {
+      "Mon": false,
+      "Tue": false,
+      "Wed": false,
+      "Thu": false,
+      "Fri": false,
+      "Sat": false,
+      "Sun": false
+    },
+    "🎧 Relax + snacks + podcast + business learning (5:30 – 7:00 PM)": {
+      "Mon": false,
+      "Tue": false,
+      "Wed": false,
+      "Thu": false,
+      "Fri": false,
+      "Sat": false,
+      "Sun": false
+    },
+    "📚 Study hacking / tips & tricks (7:00 – 9:00 PM)": {
+      "Mon": false,
+      "Tue": false,
+      "Wed": false,
+      "Thu": false,
+      "Fri": false,
+      "Sat": false,
+      "Sun": false
+    },
+    "🍽️ Dinner (9:00 – 10:00 PM)": {
+      "Mon": false,
+      "Tue": false,
+      "Wed": false,
+      "Thu": false,
+      "Fri": false,
+      "Sat": false,
+      "Sun": false
+    },
+    "📝 Fill tracker and sleep at 10:00 PM": {
+      "Mon": false,
+      "Tue": false,
+      "Wed": false,
+      "Thu": false,
+      "Fri": false,
+      "Sat": false,
+      "Sun": false
+    }
+  }
+}
