@@ -86,14 +86,10 @@ The **Personal Routine Tracker** is a Streamlit web application that helps you b
 Persanal-Tracker/
 │
 ├── app.py                  # Main Streamlit application
-├── data/
-│   └── habits.json         # Persisted habit completion data (auto-created)
-├── utils/
-│   ├── data_manager.py     # Load / save habit data (CSV or JSON)
-│   ├── analytics.py        # Streak, score & percentage calculations
-│   └── charts.py           # Plotly chart helpers
+├── habit_data.json         # Persisted habit completion data
 ├── requirements.txt        # Python dependencies
-└── README.md               # You are here 📍
+├── README.md               # You are here 📍
+└── LICENSE
 ```
 
 ---
@@ -134,7 +130,9 @@ pip install -r requirements.txt
 ```
 streamlit>=1.32.0
 plotly>=5.20.0
-pandas>=2.2.0
+pandas>=2.0.0
+streamlit-option-menu>=0.3.12
+streamlit-extras>=0.4.0
 ```
 
 ---
@@ -164,8 +162,8 @@ Navigate between pages using the **sidebar** on the left.
 
 Habit data is stored **locally** so nothing leaves your machine.
 
-- **Format:** JSON (or CSV — configurable in `utils/data_manager.py`)
-- **Location:** `data/habits.json`
+- **Format:** JSON
+- **Location:** `habit_data.json`
 - **Persistence:** Data is loaded automatically every time the app starts
 - **Reset:** Use the **Reset Week** button to clear all checkboxes for the current week
 
