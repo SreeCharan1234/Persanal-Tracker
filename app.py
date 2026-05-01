@@ -49,7 +49,6 @@ QUOTES = [
 
 # ─── Data Layer ───────────────────────────────────────────────────────────────
 
-
 def load_data() -> dict:
     if os.path.exists(DATA_FILE):
         try:
@@ -150,28 +149,70 @@ def _pct_color(pct: float) -> str:
         return "#F59E0B"
     return "#EF4444"
 
-
 # ─── Shared CSS ───────────────────────────────────────────────────────────────
-
 
 def inject_css():
     st.markdown(
         """
-        
+        <style>
+        section[data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #1A0533 0%, #0F0F1A 100%);
+            border-right: 1px solid #2D2D4E;
+        }
+        div[data-testid="metric-container"] {
+            background: #1A1A2E;
+            border: 1px solid #2D2D4E;
+            border-radius: 12px;
+            padding: 16px 20px;
+        }
+        .habit-row-even { background: #12122A; border-radius: 8px; padding: 4px; }
+        .habit-row-odd  { background: #1A1A2E; border-radius: 8px; padding: 4px; }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #A78BFA;
+            margin-bottom: 6px;
+        }
+        .stProgress > div > div > div > div {
+            background: linear-gradient(90deg, #7C3AED, #A78BFA);
+            border-radius: 4px;
+        }
+        .block-container { padding-top: 1.5rem; }
+        .quote-box {
+            background: linear-gradient(135deg, #1E1040 0%, #12122A 100%);
+            border-left: 4px solid #7C3AED;
+            border-radius: 0 10px 10px 0;
+            padding: 14px 20px;
+            margin: 12px 0 20px 0;
+            font-style: italic;
+            color: #C4B5FD;
+            font-size: 1.0rem;
+        }
+        .streak-badge {
+            display: inline-block;
+            background: #7C3AED;
+            color: white;
+            border-radius: 12px;
+            padding: 2px 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+        .stCheckbox label { font-size: 0.78rem !important; }
+        </style>
         """,
         unsafe_allow_html=True,
     )
 
-
 # ─── Tracker Page ─────────────────────────────────────────────────────────────
-
 
 def _render_tracker_header(week_dates: list, overall: float):
     col_title, col_score = st.columns([3, 1])
     with col_title:
         st.markdown("## 📅 Weekly Habit Tracker")
         st.markdown(
-            f"<p>" f"<b>Week:</b> {get_week_label()}</p>",
+            f"<p style='color:#A78BFA; font-size:1.05rem; margin-top:-12px;'>"
+            f"<b>Week:</b> {get_week_label()}</p>",
             unsafe_allow_html=True,
         )
     with col_score:
@@ -180,32 +221,60 @@ def _render_tracker_header(week_dates: list, overall: float):
     if "quote" not in st.session_state:
         st.session_state.quote = random.choice(QUOTES)
     st.markdown(
-        f"",
+        f'<div class="quote-box">{st.session_state.quote}</div>',
         unsafe_allow_html=True,
     )
 
     header_cols = st.columns([4] + [1] * 7 + [1.4])
-    header_cols[0].markdown("", unsafe_allow_html=True)
+    header_cols[0].markdown("<div class='section-title'>Habit</div>", unsafe_allow_html=True)
     for i, (day, d) in enumerate(zip(DAYS, week_dates)):
         is_today = d == date.today()
         color = "#A78BFA" if is_today else "#94A3B8"
         suffix = " 🔵" if is_today else ""
         header_cols[i + 1].markdown(
-            f"",
+            f"<div style='text-align:center; color:{color}; font-size:0.82rem; font-weight:700;'>"
+            f"{day}<br>{d.strftime('%-d')}{suffix}</div>",
             unsafe_allow_html=True,
         )
     header_cols[-1].markdown(
-        "",
+        "<div style='text-align:center; color:#94A3B8; font-size:0.82rem; font-weight:700;'>Done %</div>",
         unsafe_allow_html=True,
     )
-    st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("<hr style='border-color:#2D2D4E; margin: 4px 0 10px 0;'>", unsafe_allow_html=True)
 
 
 def _render_habit_rows(data: dict, week_key: str) -> bool:
     changed = False
     for h_idx, habit in enumerate(HABITS):
         row_class = "habit-row-even" if h_idx % 2 == 0 else "habit-row-odd"
-        st.markdown(f"", unsafe_allow_html=True)
+        st.markdown(f"<div class='{row_class}'>", unsafe_allow_html=True)
+        row_cols = st.columns([4] + [1] * 7 + [1.4])
+
+        row_cols[0].markdown(
+            f"<div style='font-size:0.88rem; padding-top:6px; color:#E2E8F0;'>{habit}</div>",
+            unsafe_allow_html=True,
+        )
+
+        for d_idx, day in enumerate(DAYS):
+            current_val = data[week_key][habit][day]
+            new_val = row_cols[d_idx + 1].checkbox(
+                label=" ",
+                value=current_val,
+                key=f"cb_{week_key}_{h_idx}_{d_idx}",
+            )
+            if new_val != current_val:
+                data[week_key][habit][day] = new_val
+                changed = True
+
+        done_count = sum(1 for day in DAYS if data[week_key][habit][day])
+        pct = done_count / len(DAYS)
+        color = _pct_color(pct)
+        row_cols[-1].markdown(
+            f"<div style='text-align:center; padding-top:6px; font-weight:700; "
+            f"color:{color}; font-size:0.9rem;'>{int(pct*100)}%</div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
     return changed
 
 
@@ -241,7 +310,7 @@ def show_tracker(data: dict, week_key: str, week_dates: list, overall: float):
     st.markdown("<br>", unsafe_allow_html=True)
     current_overall = get_completion_pct(data, week_key)
     st.markdown(
-        f"",
+        f"<div class='section-title'>📈 Overall Week Progress — {current_overall}%</div>",
         unsafe_allow_html=True,
     )
     st.progress(current_overall / 100)
@@ -249,14 +318,13 @@ def show_tracker(data: dict, week_key: str, week_dates: list, overall: float):
     st.markdown("<br>", unsafe_allow_html=True)
     _render_reset_button(data, week_key)
 
-
 # ─── Analytics Page ───────────────────────────────────────────────────────────
-
 
 def show_analytics(data: dict, week_key: str, overall_pct: float):
     st.markdown("## 📊 Analytics Dashboard")
     st.markdown(
-        f"<p>" f"Week: {get_week_label()}</p>",
+        f"<p style='color:#A78BFA; font-size:1.05rem; margin-top:-12px;'>"
+        f"Week: {get_week_label()}</p>",
         unsafe_allow_html=True,
     )
     st.markdown("---")
@@ -282,7 +350,7 @@ def show_analytics(data: dict, week_key: str, overall_pct: float):
     chart_col1, chart_col2 = st.columns(2)
 
     with chart_col1:
-        st.markdown("", unsafe_allow_html=True)
+        st.markdown("<div class='section-title'>📅 Completions Per Day</div>", unsafe_allow_html=True)
         day_data = get_day_completion(data, week_key)
 
         fig_bar = px.bar(
@@ -307,7 +375,7 @@ def show_analytics(data: dict, week_key: str, overall_pct: float):
         st.plotly_chart(fig_bar, use_container_width=True)
 
     with chart_col2:
-        st.markdown("", unsafe_allow_html=True)
+        st.markdown("<div class='section-title'>🍩 Completed vs Missed</div>", unsafe_allow_html=True)
         fig_pie = px.pie(
             names=["Completed ✅", "Missed ❌"],
             values=[total_done, total_missed],
@@ -330,7 +398,7 @@ def show_analytics(data: dict, week_key: str, overall_pct: float):
         )
         st.plotly_chart(fig_pie, use_container_width=True)
 
-    st.markdown("", unsafe_allow_html=True)
+    st.markdown("<div class='section-title'>🎯 Per-Habit Completion Rate</div>", unsafe_allow_html=True)
     habit_pct = get_habit_completion(data, week_key)
 
     short_labels = [h[:38] for h in HABITS]
@@ -357,20 +425,25 @@ def show_analytics(data: dict, week_key: str, overall_pct: float):
     )
     st.plotly_chart(fig_habit, use_container_width=True)
 
-    st.markdown("", unsafe_allow_html=True)
+    st.markdown("<div class='section-title'>🔥 Current Streaks (consecutive days)</div>", unsafe_allow_html=True)
     streak_cols = st.columns(3)
     for i, habit in enumerate(HABITS):
         streak = compute_streak(data, habit)
         short = habit[:40]
         fire = "🔥" * min(streak, 5) if streak > 0 else "💤"
         streak_cols[i % 3].markdown(
-            f"",
+            f"<div style='background:#1A1A2E; border:1px solid #2D2D4E; border-radius:10px; "
+            f"padding:10px 14px; margin-bottom:10px;'>"
+            f"<div style='font-size:0.8rem; color:#94A3B8;'>{short}</div>"
+            f"<div style='font-size:1.1rem; font-weight:700; color:#A78BFA; margin-top:4px;'>"
+            f"{fire} {streak} day{'s' if streak != 1 else ''}</div>"
+            f"</div>",
             unsafe_allow_html=True,
         )
 
     if len(data) > 1:
         st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown("", unsafe_allow_html=True)
+        st.markdown("<div class='section-title'>📈 Historical Weekly Scores</div>", unsafe_allow_html=True)
         weekly_scores = []
         for wk, habits in sorted(data.items()):
             done = sum(
@@ -408,9 +481,7 @@ def show_analytics(data: dict, week_key: str, overall_pct: float):
         )
         st.plotly_chart(fig_hist, use_container_width=True)
 
-
 # ─── Main ─────────────────────────────────────────────────────────────────────
-
 
 def main():
     st.set_page_config(
@@ -433,7 +504,11 @@ def main():
 
     with st.sidebar:
         st.markdown(
-            "",
+            "<div style='text-align:center; padding: 10px 0 20px 0;'>"
+            "<div style='font-size:2.5rem;'>🌟</div>"
+            "<div style='font-size:1.2rem; font-weight:800; color:#A78BFA;'>Routine Tracker</div>"
+            "<div style='font-size:0.75rem; color:#64748B; margin-top:4px;'>Build. Track. Grow.</div>"
+            "</div>",
             unsafe_allow_html=True,
         )
 
@@ -461,13 +536,21 @@ def main():
 
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown(
-            f"",
+            f"<div style='background:#12122A; border:1px solid #2D2D4E; border-radius:10px; "
+            f"padding:14px; text-align:center;'>"
+            f"<div style='color:#94A3B8; font-size:0.78rem; margin-bottom:6px;'>THIS WEEK</div>"
+            f"<div style='color:#A78BFA; font-size:2rem; font-weight:800;'>{overall}%</div>"
+            f"<div style='color:#64748B; font-size:0.75rem;'>productivity score</div>"
+            f"</div>",
             unsafe_allow_html=True,
         )
 
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown(
-            "",
+            "<div style='color:#475569; font-size:0.72rem; text-align:center;'>"
+            "Data saved locally · Resets never<br>"
+            f"<span style='color:#7C3AED;'>{get_week_label()}</span>"
+            "</div>",
             unsafe_allow_html=True,
         )
 
